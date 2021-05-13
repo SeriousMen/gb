@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xsi:schemaLocation="http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components 
+		view와 관련되지 않은 객체를 정의하는 곳 (DB관련 정의하는 곳) 
+	-->
+	<!--자바로 따지면 HikariConfig hikariConfig = new HikariConfig() 하는 것-->
+	<!--hikariConfig.setDriverClassName("")  -->
+	<!--hikariConfig.jdbcUrl("")  -->
+	<!--hikariConfig.username("")  -->
+	<!--hikariConfig.password("")  -->
+	
+	<!--HikariCP란 JDBC Connection Pool이다. Spring boot 2.0부터 default JDBC Connection Pool이다.  -->
+	<!--DBCP연결하는 법, spring은 여기서 연결해준다.(spring은 new를 직접하지 않기 때문에) 아래는 setter로 초기화한 것 -->
+	<!--bean태그의 id(or name)는 그 객체화한 것의 변수명, class는 어떤 클래스를 객체화할건지(그냥 클래스명을 쓰면 동명의 클래스가 존재할 수 있기 때문에 패키지명을 같이 써줘야한다.  -->
+	<!--xml로 객체화(DI를 위한)는 bean태그를 통해  -->
+	<!--그리고 그안의 property태그는 실제 속성을 말하는 것이아니라 bean(해당클래스)안에 있는 set메소드에서 set을 제외한 뒤에이름의 앞 대문자를 소문자로 바꾸는
+	 일종의 약속을 name으로 지정하고 인자로 쓸 값이 그냥 값이면 value=에 값을 써주고 ref(참조)면 참조명(변수명을 써준다.)-->
+	
+	
+	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+		<!-- <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
+         <property name="jdbcUrl" value="jdbc:oracle:thin:@localhost:1521:XE"/> -->
+		
+		<!--MyBatis는 내부적으로 JDBC의 PreparedStatement를 이용하기 때문에 SQL에 전달되는 파라미터는 ?로 치환 되서 처리한다.
+		log4jdbc는 이런 파라미터를 제대로 볼 수 있게 해준다. 설정하는 법
+		1. 먼저 src/main/resources에 log4jdbc.log4j2.properties를 만들고 안에 내용을 넣는다.
+		2. JDBC드라이버와 url 정보를 아래와 같이 수정한다.
+		3. log4j.xml 커스터마이징을 해 좀 더 높은 레벨의 로그만 기록하게 수정한다.
+		 구글에 log4j설정법치면 자세하게 나옴  -->
+		 
+	<property name="driverClassName" value="net.sf.log4jdbc.sql.jdbcapi.DriverSpy"/>
+      <property name="jdbcUrl" value="jdbc:log4jdbc:oracle:thin:@localhost:1521:XE"/>
+
+		<property name="username" value="hr"/>
+		<property name="password" value="hr"/>
+	</bean>
+	
+	<!--DataSource dataSource = new DataSource(hikariConfig)  -->
+	<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"> <!--너가 만약 연결 객체를 닫을 때 무슨 메소드 쓸래?를 설정  -->
+		<constructor-arg ref="hikariConfig"/><!--생성자로 초기화한것  -->
+	</bean>
+	
+	<!--마이바티스 설정 이거쓰려고 위의 DBCP 데이터소스  -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+			 <!--classpath는 contextPath처럼 최상단 경로 ,TimeMapper.xml을 사용하려면 이렇게 마이바티스 동작시 인식하도록 설정
+			 작성된 mapper폴더 내 어떤 폴더에 상관없이.xml파일은 자동인식하도록 설정 -->
+		<property name="mapperLocations" value="classpath:/META-INF/com/koreait/mapper/**/*.xml"/>
+		<property name="dataSource" ref="dataSource"></property>
+		
+	</bean>
+	
+	<!--먼저 Namespaces에서 마이바티스 체크하면 아래와 같은 태그를 열 수 있다. 지정된 패키지의 모든 MyBatis관련 어노테이션을 찾아 처리한다. -->
+	<mybatis-spring:scan base-package="com.koreait.mapper"/>
+	
+	<!--어노테이션을 이용한 의존성 주입을 위해 NameSpaces에서 Context항목을 체크하고
+	 Chef.java와 Restaurant.java등등 빈즈설정할 객체가 있는 패키지를 적어준다. -->
+	<!--①--><!-- 안에 적힌 패키지를 스캔, 패키지안 클래스(객체)들 중에 컴포넌트 어노테이션이 존재하는 클래스의 인스턴스를 생성한다. 
+	그리고 @Autowired가 있는 곳에 DI를 해준다.  -->
+	<!-- <context:annotation-config/>는 Ioc에서 설정한 bean을 기준으로 찾는거고 아래는 컴포넌트 어노에티션을 기준으로 찾아서 객체화시켜준다.   -->
+	<context:component-scan base-package="com.koreait.sample"/>
+</beans>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration PUBLIC "-//APACHE//DTD LOG4J 1.2//EN" "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+	<!-- log4j(Log For Java)란?
+		로그문의 출력을 다양한 대상으로 할 수 있도록 도와주는 도구(오픈 소스)
+		설정 파일은 property파일과 XML 형식으로 실행 중 수정 적용 가능
+		log4j는 처음부터 자바의 예외를 처리하기 위해 디자인 
+		log4j는 출력을 다양하게 보낼 수 있다.
+		Spring으로 세팅하면 기본적으로 log4j를 포함하고 있기 때문에 별도 생성할 필요는 없지만 혹시 없다면 log4j.xml파일을 생성해야 한다.
+		구성:Appenders, logger, root
+	  -->
+	<!-- Appenders : log의 출력 위치를 결정(파일, 콘솔, DB 등) 기본 설정 값은 console에 찍는 방식으로 되어있고 PatternLayout 클래스를 사용해서 Layout을 잡는다.-->
+	<appender name="console" class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.out" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-5p: %c - %m%n" />	<!--value뜻 %-5p: 좌측정렬  -->
+		</layout>
+	</appender>
+	
+	<!-- Application Loggers : logger는 package와 같이 영역을 지정하고 해당 영역에서 사용할 logger를 정의하는 태그, 로깅메세지를 Appender에 전달 -->
+	<logger name="com.koreait.controller">
+		<level value="info" />
+	</logger>
+	
+	<!-- 3rdparty Loggers -->
+	<logger name="org.springframework.core">
+		<level value="info" />
+	</logger>
+	
+	<logger name="org.springframework.beans">
+		<level value="info" />
+	</logger>
+	
+	<logger name="org.springframework.context">
+		<level value="info" />
+	</logger>
+
+	<logger name="org.springframework.web">
+		<level value="info" />
+	</logger>
+
+	<!-- Root Logger:root는 default 같음, 설정하지 않은 logger에 대해서만 root logger를 출력하게 --> 
+	<root>
+		<priority value="warn" />
+		<appender-ref ref="console" />
+	</root>
+	
+</log4j:configuration>
