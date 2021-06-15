@@ -1,0 +1,26 @@
+package generic;
+
+public class GnrImpl implements GnrInter<Double, Integer>{
+
+	@Override
+	public Double add(Double data1, Integer data2) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Double sub(Double data1, Integer data2) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	//원하는 것 정의
+
+	@Override
+	public Integer mul(Integer data, Integer data2) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	
+
+}
